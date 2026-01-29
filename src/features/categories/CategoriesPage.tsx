@@ -1,42 +1,50 @@
 import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  getCategories,
-  createCategory,
-  updateCategory,
-  deleteCategory,
-} from "../../api/categories.api";
-import CategoryDialog from "./CategoryDialog";
-import type { Category } from "./types";
 import { toast } from "sonner";
+
+import CategoryDialog from "./CategoryDialog";
 import { CategoryIcon } from "@/components/CategoryIcon";
+import {
+  useCategories,
+  useCreateCategory,
+  useDeleteCategory,
+  useUpdateCategory,
+} from "@/hooks/useCategories";
+import type { CategoryEntity } from "@/db/schema";
 
 export default function CategoriesPage() {
-  const qc = useQueryClient();
+  // ✅ hooks INSIDE component
+  const { data: categories = [] } = useCategories();
+  const createCategory = useCreateCategory();
+  const deleteCategory = useDeleteCategory();
+  const updateCategory = useUpdateCategory();
+
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<Category | null>(null);
+  const [selected, setSelected] = useState<CategoryEntity | null>(null);
 
-  const { data: categories = [] } = useQuery({
-    queryKey: ["categories"],
-    queryFn: getCategories,
-  });
-
-  async function handleSave(name: string, description: string) {
+  function handleSave(name: string, description: string) {
     if (selected) {
-      await updateCategory(selected.id, name, description);
+      updateCategory.mutate({
+        id: selected.id,
+        name,
+        description,
+      });
     } else {
-      await createCategory(name, description);
+      createCategory.mutate({
+        name,
+        description,
+      });
     }
-    qc.invalidateQueries({ queryKey: ["categories"] });
+
+    setOpen(false);
+    setSelected(null);
   }
 
-  async function handleDelete(id: number) {
-    try {
-      await deleteCategory(id);
-      qc.invalidateQueries({ queryKey: ["categories"] });
-    } catch {
-      toast.error("Category is in use and cannot be deleted");
-    }
+  function handleDelete(categoryId: string) {
+    deleteCategory.mutate(categoryId, {
+      onError: () => {
+        toast.error("Category is in use and cannot be deleted");
+      },
+    });
   }
 
   return (
@@ -56,12 +64,13 @@ export default function CategoriesPage() {
 
       <table className="w-full border border-app">
         <thead>
-          <tr className="bg-app min-h-screen">
+          <tr className="bg-app">
             <th className="p-2 text-left">Name</th>
             <th className="p-2 text-left">Description</th>
             <th className="p-2 w-32">Actions</th>
           </tr>
         </thead>
+
         <tbody>
           {categories.map((c) => (
             <tr key={c.id} className="border-t border-app">
@@ -69,7 +78,9 @@ export default function CategoriesPage() {
                 <CategoryIcon icon={c.icon} />
                 <span>{c.name}</span>
               </td>
+
               <td className="p-2 text-sm text-app">{c.description || "—"}</td>
+
               <td className="p-2 flex gap-2">
                 <button
                   onClick={() => {
@@ -79,6 +90,7 @@ export default function CategoriesPage() {
                 >
                   ✏️
                 </button>
+
                 <button
                   className="bg-accent text-white px-3 py-1 rounded"
                   onClick={() => handleDelete(c.id)}

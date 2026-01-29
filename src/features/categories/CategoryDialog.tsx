@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import type { Category } from "./types";
+import type { CategoryEntity } from "@/db/schema";
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  category?: Category | null;
+  category?: CategoryEntity | null;
   onSave: (name: string, description: string) => Promise<void>;
 }
 
