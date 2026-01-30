@@ -17,9 +17,6 @@ export interface AddPurchaseInput {
   unitPrice: number;
   mrp: number;
 }
-export async function getPurchaseById(id: string) {
-  return db.purchases.get(id);
-}
 
 export async function updatePurchase(
   id: string,
@@ -94,5 +91,34 @@ export async function getPurchasesChunk({
     rows,
     nextCursor:
       rows.length === PAGE_SIZE ? (cursor ?? 0) + PAGE_SIZE : undefined,
+  };
+}
+/* ---------------- DELETE ---------------- */
+export async function deletePurchase(id: string) {
+  await db.purchases.delete(id);
+}
+/* ---------------- GET ONE ---------------- */
+export async function getPurchaseById(id: string) {
+  return db.purchases.get(id);
+}
+
+/* ---------------- PAGINATION ---------------- */
+export async function getPurchasesChunk1(cursor?: number) {
+  const pageSize = 20;
+
+  const collection = cursor
+    ? db.purchases.where("createdAt").below(cursor)
+    : db.purchases;
+
+  const rows = await collection
+    .orderBy("createdAt")
+    .reverse()
+    .limit(pageSize)
+    .toArray();
+
+  return {
+    rows,
+    nextCursor:
+      rows.length === pageSize ? rows[rows.length - 1].createdAt : undefined,
   };
 }

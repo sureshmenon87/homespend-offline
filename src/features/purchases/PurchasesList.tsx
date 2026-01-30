@@ -1,36 +1,55 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+
+import PurchaseCard from "./PurchaseCard";
 import type { PurchaseEntity } from "@/db/schema";
-import { useNavigate, useParams } from "react-router-dom";
-export default function PurchasesList({
-  purchases,
-}: {
+import { deletePurchase } from "@/db/purchase.store";
+
+interface Props {
   purchases: PurchaseEntity[];
-}) {
+}
+
+export default function PurchasesList({ purchases }: Props) {
   const navigate = useNavigate();
-  if (purchases.length === 0) {
-    return (
-      <div className="text-center text-gray-500 mt-10">No purchases yet</div>
-    );
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  async function handleDelete(id: string) {
+    await deletePurchase(id);
   }
 
   return (
     <div className="px-4 space-y-3">
       {purchases.map((p) => (
-        <div
-          key={p.id}
-          className="bg-white/80 rounded-xl px-4 py-3 shadow"
-          onClick={() => navigate(`/purchase/edit/${p.id}`)}
-        >
-          <div className="flex justify-between">
-            <div>
-              <div className="font-medium">{p.itemName}</div>
-              <div className="text-sm text-gray-500">{p.shopName}</div>
-            </div>
-
-            <div className="text-right">
-              <div className="font-semibold">₹{p.unitPrice * p.quantity}</div>
-              <div className="text-xs text-gray-400">{p.date}</div>
-            </div>
+        <div key={p.id} className="relative overflow-hidden">
+          {/* Swipe actions (behind) */}
+          <div className="absolute right-0 top-0 h-full flex">
+            <button
+              className="w-16 bg-blue-500 text-white"
+              onClick={() => navigate(`/purchase/edit/${p.id}`)}
+            >
+              ✏️
+            </button>
+            <button
+              className="w-16 bg-red-500 text-white"
+              onClick={() => handleDelete(p.id)}
+            >
+              🗑
+            </button>
           </div>
+
+          {/* Swipeable card */}
+          <motion.div
+            drag="x"
+            dragConstraints={{ left: -128, right: 0 }}
+            dragElastic={0.15}
+          >
+            <PurchaseCard
+              purchase={p}
+              expanded={expandedId === p.id}
+              onToggle={() => setExpandedId(expandedId === p.id ? null : p.id)}
+            />
+          </motion.div>
         </div>
       ))}
     </div>
