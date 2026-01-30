@@ -23,6 +23,8 @@ const masterItems = [
   { to: "/shops", label: "Shops", icon: Store },
 ];
 
+const settings = [{ to: "/settings", label: "Settings", icon: Tags }];
+
 export function Sidebar() {
   return (
     <aside className="w-64 border-r border-app bg-background px-4 py-6 flex flex-col">
@@ -42,7 +44,7 @@ export function Sidebar() {
               cn(
                 "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                 "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                isActive && "bg-accent text-accent-foreground"
+                isActive && "bg-accent text-accent-foreground",
               )
             }
           >
@@ -64,7 +66,28 @@ export function Sidebar() {
               cn(
                 "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                 "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                isActive && "bg-accent text-accent-foreground"
+                isActive && "bg-accent text-accent-foreground",
+              )
+            }
+          >
+            <Icon className="h-4 w-4" />
+            {label}
+          </NavLink>
+        ))}
+        {/* Settings Section */}
+        <div className="mt-6 mb-2 px-3 text-xs font-semibold text-muted-foreground uppercase">
+          Master Data
+        </div>
+
+        {settings.map(({ to, label, icon: Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            className={({ isActive }) =>
+              cn(
+                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                isActive && "bg-accent text-accent-foreground",
               )
             }
           >

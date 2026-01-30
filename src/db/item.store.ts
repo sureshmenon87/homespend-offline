@@ -1,29 +1,30 @@
 import { db } from "./schema";
 import { v4 as uuid } from "uuid";
+import type { ItemEntity } from "./schema";
 
 export const ItemStore = {
-  getAll() {
+  async getAll() {
     return db.items.toArray();
   },
 
   async create(name: string, categoryId: string) {
-    const existing = await db.items.where("name").equals(name).first();
-    if (existing) {
-      throw new Error("Item already exists");
-    }
+    const trimmed = name.trim();
+    if (!trimmed) return;
 
     const now = Date.now();
+
     await db.items.add({
       id: uuid(),
-      name,
+      name: trimmed,
       categoryId,
       createdAt: now,
       updatedAt: now,
     });
   },
 
-  update(id: string, categoryId: string) {
-    return db.items.update(id, {
+  async update(id: string, name: string, categoryId: string) {
+    await db.items.update(id, {
+      name: name.trim(),
       categoryId,
       updatedAt: Date.now(),
     });

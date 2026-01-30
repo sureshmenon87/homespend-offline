@@ -56,7 +56,9 @@ body {
   color: rgb(var(--text));
 }
 * {
-  transition: background-color 0.25s ease, color 0.25s ease,
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
     border-color 0.25s ease;
 }
 
@@ -88,4 +90,7 @@ body {
   .bg-accent {
     background-color: rgb(var(--accent));
   }
+}
+.settings-card {
+  @apply rounded-xl bg-white shadow-sm border border-gray-100 overflow-hidden;
 }

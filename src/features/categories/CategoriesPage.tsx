@@ -21,7 +21,7 @@ export default function CategoriesPage() {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<CategoryEntity | null>(null);
 
-  function handleSave(name: string, description: string) {
+  async function handleSave(name: string, description: string) {
     if (selected) {
       updateCategory.mutate({
         id: selected.id,
@@ -41,8 +41,12 @@ export default function CategoriesPage() {
 
   function handleDelete(categoryId: string) {
     deleteCategory.mutate(categoryId, {
-      onError: () => {
-        toast.error("Category is in use and cannot be deleted");
+      onError: (err) => {
+        if ((err as Error).message === "CATEGORY_IN_USE") {
+          toast.error("This category is used by items and cannot be deleted");
+        } else {
+          toast.error("Failed to delete category");
+        }
       },
     });
   }

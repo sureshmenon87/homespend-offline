@@ -1,6 +1,7 @@
 import * as Select from "@radix-ui/react-select";
 import { ChevronDown } from "lucide-react";
 import { CategoryIcon } from "@/components/CategoryIcon";
+import type { CategoryEntity } from "@/db/schema";
 
 interface Category {
   id: number;
@@ -10,19 +11,16 @@ interface Category {
 }
 
 interface Props {
-  value?: number;
-  categories: Category[];
-  onChange: (id: number) => void;
+  value?: string;
+  categories: CategoryEntity[];
+  onChange: (id: string) => void;
 }
 
 export function CategorySelect({ value, categories, onChange }: Props) {
   const selected = categories.find((c) => c.id === value);
 
   return (
-    <Select.Root
-      value={value?.toString()}
-      onValueChange={(v) => onChange(Number(v))}
-    >
+    <Select.Root value={value?.toString()} onValueChange={(v) => onChange(v)}>
       <Select.Trigger className="border border-app px-3 py-2 flex items-center gap-2 w-full">
         {selected ? (
           <>

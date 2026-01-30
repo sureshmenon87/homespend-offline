@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import type { Shop } from "./types";
+import type { ShopEntity } from "@/db/schema";
 
 interface Props {
   open: boolean;
+  shop: ShopEntity | null;
   onClose: () => void;
-  shop?: Shop | null;
-  onSave: (name: string) => Promise<void>;
+  onSave: (name: string) => void;
 }
 
-export default function ShopDialog({ open, onClose, shop, onSave }: Props) {
+export default function ShopDialog({ open, shop, onClose, onSave }: Props) {
   const [name, setName] = useState("");
 
   useEffect(() => {
@@ -18,33 +18,25 @@ export default function ShopDialog({ open, onClose, shop, onSave }: Props) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-card p-4 rounded w-96">
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+      <div className="bg-white p-4 rounded w-80">
         <h2 className="font-semibold mb-3">
           {shop ? "Edit Shop" : "Add Shop"}
         </h2>
 
         <input
-          className="border border-app w-full p-2 mb-3"
+          className="border w-full p-2 mb-4"
+          placeholder="Shop name"
           value={name}
-          onChange={(e) => setName(e.target.value.toUpperCase())}
-          placeholder="SHOP NAME"
+          onChange={(e) => setName(e.target.value)}
         />
 
         <div className="flex justify-end gap-2">
+          <button onClick={onClose}>Cancel</button>
           <button
-            className="bg-accent text-white px-3 py-1 rounded"
-            onClick={onClose}
-          >
-            Cancel
-          </button>
-          <button
-            className="bg-accent text-white px-3 py-1 rounded bg-black text-white px-3 py-1"
+            className="bg-black text-white px-3 py-1"
             disabled={!name.trim()}
-            onClick={async () => {
-              await onSave(name.trim());
-              onClose();
-            }}
+            onClick={() => onSave(name)}
           >
             Save
           </button>

@@ -9,9 +9,11 @@ import { usePurchases } from "@/features/purchases/usePurchases";
 
 import { Plus } from "lucide-react";
 import { AddPurchaseDialog } from "../features/purchases/AddPurchaseDialog";
+import AddPurchasePage from "./purchase/AddPurchasePage";
 import { useEffect, useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 export function PurchasesPage() {
+  const navigate = useNavigate();
   const [filters, setFilters] = useState<{
     search?: string;
     from?: string;
@@ -88,6 +90,7 @@ export function PurchasesPage() {
             Track and manage your grocery and daily expenses.
           </p>
         </div>
+        {/*
         <Button
           onClick={() => {
             setEditingPurchase(null);
@@ -99,13 +102,18 @@ export function PurchasesPage() {
         >
           <Plus className="h-4 w-4" />
           Add Purchase
+        </Button
+         */}
+        <Button onClick={() => navigate("/purchase/add")}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Purchase
         </Button>
-        <AddPurchaseDialog
+        {/*<AddPurchaseDialog
           open={dialogOpen}
           onOpenChange={setDialogOpen}
           editingPurchase={editingPurchase}
           onSuccess={handleSuccess}
-        />
+        />*/}
       </div>
       {/* Filters */}
       <PurchasesFilters

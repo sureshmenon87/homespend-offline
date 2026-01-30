@@ -29,7 +29,16 @@ export const CategoryStore = {
     });
   },
 
-  delete(id: string) {
-    return db.categories.delete(id);
+  async delete(id: string) {
+    // 1️⃣ Check if any item uses this category
+    const count = await db.items.where("categoryId").equals(id).count();
+
+    if (count > 0) {
+      // ❌ Block delete
+      throw new Error("CATEGORY_IN_USE");
+    }
+
+    // 2️⃣ Safe to delete
+    await db.categories.delete(id);
   },
 };

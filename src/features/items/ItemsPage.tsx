@@ -1,66 +1,68 @@
 import { useMemo, useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  getItems,
-  createItem,
-  updateItem,
-  deleteItem,
-} from "../../api/items.api";
-import { getCategories } from "../../api/categories.api";
-import ItemDialog from "./ItemDialog";
-import type { Item } from "./types";
 import { toast } from "sonner";
+
+import ItemDialog from "./ItemDialog";
+import {
+  useItemsWithCategory,
+  useCreateItem,
+  useUpdateItem,
+  useDeleteItem,
+} from "@/hooks/useItems";
+import { useCategories } from "@/hooks/useCategories";
 
 type SortKey = "name" | "category";
 type SortOrder = "asc" | "desc";
 
 export default function ItemsPage() {
-  const qc = useQueryClient();
+  const { data: items = [] } = useItemsWithCategory();
+  const { data: categories = [] } = useCategories();
+
+  const createItem = useCreateItem();
+  const updateItem = useUpdateItem();
+  const deleteItem = useDeleteItem();
 
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<Item | null>(null);
+  const [selected, setSelected] = useState<any | null>(null);
 
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
 
-  const { data: items = [] } = useQuery({
-    queryKey: ["items"],
-    queryFn: getItems,
-  });
-
-  const { data: categories = [] } = useQuery({
-    queryKey: ["categories"],
-    queryFn: getCategories,
-  });
-
-  async function handleSave(data: { name: string; categoryId: number }) {
+  async function handleSave(data: { name: string; categoryId: string }) {
     if (selected) {
-      await updateItem(selected.id, data);
+      updateItem.mutate({
+        id: selected.id,
+        name: data.name,
+        categoryId: data.categoryId,
+      });
     } else {
-      await createItem(data);
+      createItem.mutate(data);
     }
-    qc.invalidateQueries({ queryKey: ["items"] });
+
+    setOpen(false);
+    setSelected(null);
   }
 
-  async function handleDelete(id: number) {
-    try {
-      await deleteItem(id);
-      qc.invalidateQueries({ queryKey: ["items"] });
-    } catch {
-      toast.error("Item is in use and cannot be deleted");
-    }
+  function handleDelete(id: string) {
+    deleteItem.mutate(id, {
+      onError: () => {
+        toast.error("Item is in use and cannot be deleted");
+      },
+    });
   }
 
-  // 🔍 Search + Sort Logic
+  // 🔍 Search + Sort (unchanged logic)
   const filteredItems = useMemo(() => {
-    let result = items.filter((i) =>
-      `${i.name} ${i.categoryName}`.toLowerCase().includes(search.toLowerCase())
-    );
+    let result = items.filter((i) => {
+      console.log(i);
+      return `${i.name} ${i.category.name}`
+        .toLowerCase()
+        .includes(search.toLowerCase());
+    });
 
     result.sort((a, b) => {
-      const aVal = sortKey === "name" ? a.name : a.categoryName;
-      const bVal = sortKey === "name" ? b.name : b.categoryName;
+      const aVal = sortKey === "name" ? a.name : a.category.name;
+      const bVal = sortKey === "name" ? b.name : b.category.name;
 
       return sortOrder === "asc"
         ? aVal.localeCompare(bVal)
@@ -72,7 +74,6 @@ export default function ItemsPage() {
 
   return (
     <div className="p-4 space-y-4">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-semibold">Items</h1>
         <button
@@ -86,7 +87,7 @@ export default function ItemsPage() {
         </button>
       </div>
 
-      {/* Search + Sort Controls */}
+      {/* Search + Sort */}
       <div className="flex gap-3 items-center">
         <input
           className="border border-app px-3 py-2 w-64"
@@ -105,7 +106,7 @@ export default function ItemsPage() {
         </select>
 
         <button
-          className="border border-app  px-3 py-2"
+          className="border border-app px-3 py-2"
           onClick={() => setSortOrder((o) => (o === "asc" ? "desc" : "asc"))}
         >
           {sortOrder === "asc" ? "↑ A–Z" : "↓ Z–A"}
@@ -115,7 +116,7 @@ export default function ItemsPage() {
       {/* Table */}
       <table className="w-full border border-app">
         <thead>
-          <tr className="bg-app min-h-screen">
+          <tr className="bg-app">
             <th className="p-2 text-left">Item</th>
             <th className="p-2 text-left">Category</th>
             <th className="p-2 w-32">Actions</th>
@@ -150,7 +151,6 @@ export default function ItemsPage() {
         </tbody>
       </table>
 
-      {/* Dialog */}
       <ItemDialog
         open={open}
         item={selected}
