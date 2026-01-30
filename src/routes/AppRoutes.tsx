@@ -3,7 +3,7 @@ import { DashboardLayout } from "../layouts/DashboardLayout";
 import FullPageLayout from "../layouts/FullPageLayout";
 
 import Dashboard from "../pages/DashboardPage";
-import { PurchasesPage } from "../pages/PurchasesPage";
+import PurchasesPage from "../pages/PurchasesPage";
 import CategoriesPage from "@/features/categories/CategoriesPage";
 import ItemsPage from "@/features/items/ItemsPage";
 import ShopsPage from "@/pages/ShopsPage";
@@ -30,6 +30,7 @@ export function AppRoutes() {
       {/* 🔥 Full-page flow route (NO sidebar) */}
       <Route element={<FullPageLayout />}>
         <Route path="/purchase/add" element={<AddPurchasePage />} />
+        <Route path="/purchase/edit/:id" element={<AddPurchasePage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" />} />

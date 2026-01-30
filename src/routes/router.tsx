@@ -1,7 +1,7 @@
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import FullPageLayout from "@/layouts/FullPageLayout";
 
-import { PurchasesPage } from "@/pages/PurchasesPage";
+import PurchasesPage from "@/pages/PurchasesPage";
 import AddPurchasePage from "@/pages/purchase/AddPurchasePage";
 import { createBrowserRouter } from "react-router-dom";
 

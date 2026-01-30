@@ -1,12 +1,24 @@
-import { deletePurchase } from "@/api/purchases.api";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { getAllPurchases, getPurchasesChunk } from "@/db/purchase.store";
+import type { PurchaseFilters } from "@/features/purchases/types";
 
-const handleDelete = async (id: number) => {
-  await deletePurchase(id);
-  refetch(); // or mutate(), depending on your setup
-};
+/*export function usePurchases(filters: PurchaseFilters) {
+  return useInfiniteQuery({
+    queryKey: ["purchases", filters],
+    queryFn: ({ pageParam }) =>
+      getPurchasesChunk({
+        cursor: pageParam,
+        filters,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+  });
+}
+*/
 
-return {
-  purchases,
-  isLoading,
-  handleDelete,
-};
+export function usePurchases() {
+  return useQuery({
+    queryKey: ["purchases"],
+    queryFn: getAllPurchases,
+  });
+}

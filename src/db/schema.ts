@@ -40,7 +40,9 @@ export interface PurchaseEntity {
   quantity: number;
   unitPrice: number;
   mrp: number;
-
+  total: number;
+  saved: number;
+  updatedAt?: number;
   createdAt: number;
 }
 

@@ -94,3 +94,68 @@ body {
 .settings-card {
   @apply rounded-xl bg-white shadow-sm border border-gray-100 overflow-hidden;
 }
+
+.btn-primary {
+  @apply bg-blue-600 text-white px-4 py-2 rounded-lg;
+}
+
+.btn-secondary {
+  @apply border px-4 py-2 rounded-lg;
+}
+
+/* ===== Clean Mobile Form System ===== */
+
+.form-field {
+  @apply flex flex-col gap-2;
+}
+
+.form-label {
+  @apply text-xs font-medium text-gray-500;
+}
+
+.form-error {
+  @apply text-xs text-red-500;
+}
+
+.input {
+  @apply w-full rounded-xl
+  border border-gray-200
+  bg-white
+  px-4 py-3
+  text-sm text-gray-800
+  shadow-sm
+  focus:outline-none
+  focus:ring-2 focus:ring-blue-500;
+}
+
+.input-disabled {
+  @apply bg-gray-100 text-gray-500 cursor-not-allowed;
+}
+
+@layer components {
+  .form-field {
+    @apply flex flex-col gap-1;
+  }
+
+  .form-label {
+    @apply text-sm font-medium text-gray-700;
+  }
+
+  .form-error {
+    @apply text-xs text-red-500;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-gray-300 bg-white
+      px-4 py-3 text-sm text-gray-800
+      focus:outline-none focus:ring-2 focus:ring-blue-500;
+  }
+
+  .input-disabled {
+    @apply bg-gray-100 text-gray-500 cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply px-5 py-2.5 rounded-xl bg-blue-600 text-white shadow-md;
+  }
+}
