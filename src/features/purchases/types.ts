@@ -1,13 +1,11 @@
-export type DateRange = "thisMonth" | "lastMonth" | "custom";
+export type DateRange = "today" | "yesterday" | "thisMonth" | "all";
 
-export interface PurchaseFilters {
-  dateRange: DateRange;
+export type PurchaseFilters = {
+  dateRange: "thisMonth" | "custom";
   from?: string;
   to?: string;
-  shopId?: string;
-  categoryId?: string;
-  sortBy?: "name" | "priceHigh" | "priceLow" | "category";
-}
+};
+
 export type Purchase = {
   id: number;
   shopId: number;

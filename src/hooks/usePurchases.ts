@@ -1,8 +1,8 @@
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { getAllPurchases, getPurchasesChunk } from "@/db/purchase.store";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { getPurchasesChunk } from "@/db/purchase.store";
 import type { PurchaseFilters } from "@/features/purchases/types";
 
-/*export function usePurchases(filters: PurchaseFilters) {
+export function usePurchases(filters: PurchaseFilters) {
   return useInfiniteQuery({
     queryKey: ["purchases", filters],
     queryFn: ({ pageParam }) =>
@@ -10,15 +10,7 @@ import type { PurchaseFilters } from "@/features/purchases/types";
         cursor: pageParam,
         filters,
       }),
-    initialPageParam: 0,
+    initialPageParam: undefined as number | undefined,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
-  });
-}
-*/
-
-export function usePurchases() {
-  return useQuery({
-    queryKey: ["purchases"],
-    queryFn: getAllPurchases,
   });
 }

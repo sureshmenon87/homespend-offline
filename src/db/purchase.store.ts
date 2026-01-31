@@ -1,58 +1,34 @@
-import { db, type PurchaseEntity } from "./schema";
-import type { PurchaseFilters } from "@/features/purchases/types";
+import { db } from "./schema";
+import type { PurchaseEntity } from "./schema";
+import { nanoid } from "nanoid";
 
 const PAGE_SIZE = 20;
-import { v4 as uuid } from "uuid";
 
-export interface AddPurchaseInput {
-  itemId: string;
-  itemName: string;
+export async function addPurchase(
+  data: Omit<PurchaseEntity, "id" | "createdAt">,
+) {
+  const purchase: PurchaseEntity = {
+    id: nanoid(),
+    createdAt: Date.now(),
+    ...data,
+  };
 
-  categoryId: string;
-  categoryName: string;
-  shopId: string;
-  shopName: string;
-  date: string;
-  quantity: number;
-  unitPrice: number;
-  mrp: number;
+  await db.purchases.add(purchase);
 }
 
 export async function updatePurchase(
   id: string,
   data: Partial<PurchaseEntity>,
 ) {
-  await db.purchases.update(id, {
-    ...data,
-    updatedAt: Date.now(),
-  });
+  await db.purchases.update(id, data);
 }
 
-export async function getAllPurchases(): Promise<PurchaseEntity[]> {
-  return db.purchases.orderBy("date").reverse().toArray();
+export async function deletePurchase(id: string) {
+  await db.purchases.delete(id);
 }
 
-export async function addPurchase(data: AddPurchaseInput) {
-  const total = data.quantity * data.unitPrice;
-  const saved = data.mrp * data.quantity - total;
-
-  await db.purchases.add({
-    id: uuid(), // ✅ string UUID
-    date: data.date,
-    itemId: data.itemId,
-    itemName: data.itemName,
-    categoryId: data.categoryId,
-    categoryName: data.categoryName,
-    shopId: data.shopId,
-    shopName: data.shopName,
-    quantity: data.quantity,
-    unitPrice: data.unitPrice,
-    mrp: data.mrp,
-    total,
-    saved,
-    updatedAt: Date.now(),
-    createdAt: Date.now(),
-  });
+export async function getPurchaseById(id: string) {
+  return db.purchases.get(id);
 }
 
 export async function getPurchasesChunk({
@@ -60,29 +36,20 @@ export async function getPurchasesChunk({
   filters,
 }: {
   cursor?: number;
-  filters: PurchaseFilters;
+  filters: { dateRange: "thisMonth" | "custom"; from?: string; to?: string };
 }) {
-  let collection = db.purchases.orderBy("createdAt").reverse();
+  let query = db.purchases.orderBy("date").reverse();
 
-  // ---- DATE FILTERS ----
   if (filters.dateRange === "thisMonth") {
     const now = new Date();
-    collection = collection.filter((p) => {
-      const d = new Date(p.date);
-      return (
-        d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
-      );
-    });
+    const start = new Date(now.getFullYear(), now.getMonth(), 1)
+      .toISOString()
+      .slice(0, 10);
+
+    query = query.filter((p) => p.date >= start);
   }
 
-  if (filters.dateRange === "custom" && filters.from && filters.to) {
-    collection = collection.filter((p) => {
-      const d = new Date(p.date);
-      return d >= new Date(filters.from!) && d <= new Date(filters.to!);
-    });
-  }
-
-  const rows = await collection
+  const rows = await query
     .offset(cursor ?? 0)
     .limit(PAGE_SIZE)
     .toArray();
@@ -91,34 +58,5 @@ export async function getPurchasesChunk({
     rows,
     nextCursor:
       rows.length === PAGE_SIZE ? (cursor ?? 0) + PAGE_SIZE : undefined,
-  };
-}
-/* ---------------- DELETE ---------------- */
-export async function deletePurchase(id: string) {
-  await db.purchases.delete(id);
-}
-/* ---------------- GET ONE ---------------- */
-export async function getPurchaseById(id: string) {
-  return db.purchases.get(id);
-}
-
-/* ---------------- PAGINATION ---------------- */
-export async function getPurchasesChunk1(cursor?: number) {
-  const pageSize = 20;
-
-  const collection = cursor
-    ? db.purchases.where("createdAt").below(cursor)
-    : db.purchases;
-
-  const rows = await collection
-    .orderBy("createdAt")
-    .reverse()
-    .limit(pageSize)
-    .toArray();
-
-  return {
-    rows,
-    nextCursor:
-      rows.length === pageSize ? rows[rows.length - 1].createdAt : undefined,
   };
 }
