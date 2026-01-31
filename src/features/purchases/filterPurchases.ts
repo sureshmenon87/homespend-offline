@@ -61,7 +61,7 @@ export function filterAndGroupPurchases(
     }
 
     groups[key].rows.push(p);
-    groups[key].total += p.mrp * p.quantity;
+    groups[key].total += p.unitPrice * p.quantity;
   }
 
   return Object.values(groups).sort((a, b) => (a.label === "Today" ? -1 : 0));
