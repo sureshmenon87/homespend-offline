@@ -1,11 +1,11 @@
-export type DateRange = "today" | "yesterday" | "thisMonth" | "all";
+export type DateRange = "today" | "yesterday" | "thisMonth" | "custom";
 
 export type PurchaseFilters = {
-  dateRange: "thisMonth" | "custom";
+  dateRange: DateRange;
   from?: string;
   to?: string;
+  search?: string;
 };
-
 export type Purchase = {
   id: number;
   shopId: number;

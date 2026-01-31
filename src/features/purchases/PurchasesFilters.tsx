@@ -5,16 +5,12 @@ type Props = {
   onChange: (v: PurchaseFilters) => void;
 };
 
-export function PurchasesFilters({ filters, onChange }: Props) {
+export default function PurchasesFilters({ filters, onChange }: Props) {
   return (
-    <div className="px-4 py-3 flex gap-3">
+    <div className="px-4 py-2">
       <button
-        className={`px-3 py-1 rounded ${
-          filters.dateRange === "thisMonth"
-            ? "bg-blue-600 text-white"
-            : "border"
-        }`}
-        onClick={() => onChange({ dateRange: "thisMonth" })}
+        className="px-3 py-1 rounded-full bg-blue-600 text-white text-sm"
+        onClick={() => onChange({ ...filters, dateRange: "thisMonth" })}
       >
         This month
       </button>

@@ -1,100 +1,64 @@
-import { motion, AnimatePresence } from "framer-motion";
+// src/features/purchases/PurchaseCard.tsx
+import { motion } from "framer-motion";
 import { Pencil, Trash2 } from "lucide-react";
-import { useRef } from "react";
 import type { PurchaseEntity } from "@/db/schema";
 
 type Props = {
   purchase: PurchaseEntity;
-  expanded: boolean;
-  onToggle: () => void;
   onEdit: () => void;
   onDelete: () => void;
 };
 
-export default function PurchaseCard({
-  purchase,
-  expanded,
-  onToggle,
-  onEdit,
-  onDelete,
-}: Props) {
-  const timerRef = useRef<number | null>(null);
-
-  // 👉 long press (mobile)
-  const onPressStart = () => {
-    timerRef.current = window.setTimeout(onToggle, 450);
-  };
-  const onPressEnd = () => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-  };
-
+export default function PurchaseCard({ purchase, onEdit, onDelete }: Props) {
   return (
-    <motion.div
-      layout
-      onMouseDown={onPressStart}
-      onMouseUp={onPressEnd}
-      onMouseLeave={onPressEnd}
-      onTouchStart={onPressStart}
-      onTouchEnd={onPressEnd}
-      className="relative bg-white rounded-xl shadow-sm mb-3 overflow-hidden"
-    >
-      {/* MAIN ROW */}
-      <div
-        className="px-4 py-3 flex justify-between items-center cursor-pointer"
-        onClick={onToggle}
-      >
-        <div>
-          <div className="font-semibold text-sm uppercase">
-            {purchase.itemName}
-          </div>
-          <div className="text-xs text-gray-500">{purchase.shopName}</div>
-        </div>
-
-        <div className="text-right">
-          <div className="font-semibold text-sm">
-            ₹{purchase.unitPrice * purchase.quantity}
-          </div>
-          <div className="text-xs text-gray-500">
-            {new Date(purchase.date).toLocaleDateString()}
-          </div>
-        </div>
+    <div className="relative overflow-hidden rounded-xl">
+      {/* Swipe actions (behind) */}
+      <div className="absolute inset-y-0 right-0 flex">
+        <button
+          onClick={onEdit}
+          className="w-14 flex items-center justify-center bg-gray-100 text-gray-600"
+        >
+          <Pencil size={18} />
+        </button>
+        <button
+          onClick={onDelete}
+          className="w-14 flex items-center justify-center bg-gray-200 text-gray-700"
+        >
+          <Trash2 size={18} />
+        </button>
       </div>
 
-      {/* EXPANDED */}
-      <AnimatePresence>
-        {expanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="px-4 pb-4 text-sm text-gray-700"
-          >
-            <div className="grid grid-cols-2 gap-2 mt-2">
-              <div>Qty: {purchase.quantity}</div>
-              <div>Unit: ₹{purchase.unitPrice}</div>
-              <div>MRP: ₹{purchase.mrp}</div>
-              <div>Category: {purchase.categoryName}</div>
-            </div>
+      {/* Card */}
+      <motion.div
+        drag="x"
+        dragConstraints={{ left: -112, right: 0 }}
+        dragElastic={0.12}
+        className="
+          relative bg-white rounded-xl px-4 py-3
+          shadow-sm border border-gray-100
+          active:cursor-grabbing
+        "
+      >
+        <div className="flex justify-between items-start gap-3">
+          {/* Left */}
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold text-gray-900">
+              {purchase.itemName}
+            </span>
+            <span className="text-xs text-gray-500">{purchase.shopName}</span>
+          </div>
 
-            <div className="flex justify-end gap-3 mt-4">
-              <button
-                onClick={onEdit}
-                className="flex items-center gap-1 text-gray-600 hover:text-black"
-              >
-                <Pencil size={16} />
-                Edit
-              </button>
-              <button
-                onClick={onDelete}
-                className="flex items-center gap-1 text-red-500 hover:text-red-600"
-              >
-                <Trash2 size={16} />
-                Delete
-              </button>
+          {/* Right */}
+          <div className="text-right shrink-0">
+            <div className="text-sm font-semibold text-gray-900">
+              ₹{purchase.unitPrice * purchase.quantity}
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+            <div className="text-xs text-gray-400">
+              {new Date(purchase.date).toLocaleDateString()}
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </div>
   );
 }
